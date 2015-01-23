@@ -78,7 +78,7 @@ describe("Successful API Calls", function() {
           }
         )
     });
-  })
+  });
   describe("Experiments", function() {
     scope.post('/projects/' + PROJECTID + "/experiments/") //create
       .reply(201, function(uri, requestBody) {
