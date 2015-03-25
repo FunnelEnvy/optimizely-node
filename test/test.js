@@ -108,6 +108,34 @@ describe("Successful API Calls", function() {
           }
         )
     });
+    scope.post('/projects/' + PROJECTID + "/experiments/") //create
+      .reply(201, function(uri, requestBody) {
+        requestBody = JSON.parse(requestBody);
+        requestBody.id = EXPERIMENTID;
+        return requestBody;
+      });
+    it('should create an experiment (with pushExperiment)', function(done) {
+      var options = {
+        "project_id": PROJECTID,
+        "edit_url": EDITURL,
+        "custom_css": "/*css comment*/",
+        "custom_js": "//js comment"
+      }
+      client.pushExperiment(options)
+        .then(
+          function(experiment) {
+            experiment = JSON.parse(experiment);
+            assert.equal(experiment.id, EXPERIMENTID);
+            assert.equal(experiment.edit_url, EDITURL);
+            assert.equal(experiment.custom_css, "/*css comment*/");
+            assert.equal(experiment.custom_js, "//js comment");
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
     scope.get('/experiments/' + EXPERIMENTID) //get
       .reply(200, function(uri, requestBody) {
         return stripPathEnd(uri);
@@ -138,6 +166,28 @@ describe("Successful API Calls", function() {
         "description": "New " + EXPERIMENTDESCRIPTION
       };
       client.updateExperiment(options)
+        .then(
+          function(experiment) {
+            experiment = JSON.parse(experiment);
+            assert.equal(experiment.description, options.description);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    scope.put('/experiments/' + EXPERIMENTID) //update
+      .reply(202, function(uri, requestBody) {
+        requestBody.id = stripPathEnd(uri);
+        return requestBody;
+      });
+    it('should update an experiment (with pushExperiment)', function(done) {
+      var options = {
+        "id": EXPERIMENTID,
+        "description": "New " + EXPERIMENTDESCRIPTION
+      };
+      client.pushExperiment(options)
         .then(
           function(experiment) {
             experiment = JSON.parse(experiment);
@@ -222,6 +272,30 @@ describe("Successful API Calls", function() {
           }
         )
     });
+    scope.post('/experiments/' + EXPERIMENTID + '/variations/') //create
+      .reply(201, function(uri, requestBody) {
+        requestBody = JSON.parse(requestBody);
+        requestBody.id = VARIATIONID;
+        return requestBody;
+      });
+    it('should create a variation (with pushVariation)', function(done) {
+      var options = {
+        "experiment_id": EXPERIMENTID,
+        "description": "Variation Description"
+      }
+      client.pushVariation(options)
+        .then(
+          function(variation) {
+            variation = JSON.parse(variation);
+            assert.equal(variation.description,
+              "Variation Description");
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
     scope.get('/variations/' + VARIATIONID) //get
       .reply(200, function(uri, requestBody) {
         return stripPathEnd(uri);
@@ -250,6 +324,30 @@ describe("Successful API Calls", function() {
         "description": "New " + "Variation Description"
       }
       client.updateVariation(options)
+        .then(
+          function(variation) {
+            variation = JSON.parse(variation);
+            assert.equal(variation.description,
+              "New " + "Variation Description");
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    scope.put('/variations/' + VARIATIONID) //update
+      .reply(202, function(uri, requestBody) {
+        requestBody = JSON.parse(requestBody);
+        requestBody.id = VARIATIONID;
+        return requestBody;
+      });
+    it('should update a variation (with pushVariation)', function(done) {
+      var options = {
+        "id": VARIATIONID,
+        "description": "New " + "Variation Description"
+      };
+      client.pushVariation(options)
         .then(
           function(variation) {
             variation = JSON.parse(variation);
@@ -345,6 +443,33 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
+    scope.post('/projects/' + PROJECTID + "/experiments/") //create
+      .reply(400, function(uri, requestBody) {
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      });
+    it('should not create an experiment (with pushExperiment)', function(done) {
+      var options = {
+        "project_id": PROJECTID,
+        "edit_url": EDITURL,
+        "custom_css": "/*css comment*/",
+        "custom_js": "//js comment"
+      }
+      client.pushExperiment(options)
+        .then(
+          function(variation) {
+            done(FAILUREMESSAGE);
+          },
+          function(error) {
+            error = JSON.parse(error);
+            assert.equal(error.message, FUNNELENVYERROR);
+            done();
+          }
+        )
+    });
     scope.get('/experiments/' + EXPERIMENTID) //get
       .reply(400, function(uri, requestBody) {
         return {
@@ -384,6 +509,32 @@ describe("Unsuccessful API Calls", function() {
         "description": "New " + EXPERIMENTDESCRIPTION
       };
       client.updateExperiment(options)
+        .then(
+          function(variation) {
+            done(FAILUREMESSAGE);
+          },
+          function(error) {
+            error = JSON.parse(error);
+            assert.equal(error.message, FUNNELENVYERROR);
+            done();
+          }
+        )
+    });
+    scope.put('/experiments/' + EXPERIMENTID) //update
+      .reply(400, function(uri, requestBody) {
+        requestBody.id = stripPathEnd(uri);
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      });
+    it('should not update an experiment (with pushExperiment)', function(done) {
+      var options = {
+        "id": EXPERIMENTID,
+        "description": "New " + EXPERIMENTDESCRIPTION
+      };
+      client.pushExperiment(options)
         .then(
           function(variation) {
             done(FAILUREMESSAGE);
@@ -472,6 +623,31 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
+    scope.post('/experiments/' + EXPERIMENTID + '/variations/') //create
+      .reply(400, function(uri, requestBody) {
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      });
+    it('should not create a variation (with pushVariation)', function(done) {
+      var options = {
+        "experiment_id": EXPERIMENTID,
+        "description": "Variation Description"
+      }
+      client.pushVariation(options)
+        .then(
+          function(variation) {
+            done(FAILUREMESSAGE);
+          },
+          function(error) {
+            error = JSON.parse(error);
+            assert.equal(error.message, FUNNELENVYERROR);
+            done();
+          }
+        )
+    });
     scope.get('/variations/' + VARIATIONID) //get
       .reply(400, function(uri, requestBody) {
         return {
@@ -507,6 +683,31 @@ describe("Unsuccessful API Calls", function() {
         "description": "New " + "Variation Description"
       }
       client.updateVariation(options)
+        .then(
+          function(variation) {
+            done(FAILUREMESSAGE);
+          },
+          function(error) {
+            error = JSON.parse(error);
+            assert.equal(error.message, FUNNELENVYERROR);
+            done();
+          }
+        )
+    });
+    scope.put('/variations/' + VARIATIONID) //update
+      .reply(400, function(uri, requestBody) {
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      })
+    it('should not update a variation (with pushVariation)', function(done) {
+      var options = {
+        "id": VARIATIONID,
+        "description": "New " + "Variation Description"
+      }
+      client.pushVariation(options)
         .then(
           function(variation) {
             done(FAILUREMESSAGE);
