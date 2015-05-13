@@ -29,6 +29,9 @@ var scope = nock(baseUrl);
 ////////////////
 var client = new OptimizelyClient(token);
 describe("Successful API Calls", function() {
+  ////////////////
+  //Project Tests
+  ////////////////
   describe("Projects", function() {
     scope.post('/projects/') //create
       .reply(201, function(uri, requestBody) {
@@ -78,7 +81,47 @@ describe("Successful API Calls", function() {
           }
         )
     });
+    scope.put('/projects/' + PROJECTID) //update
+      .reply(202, function(uri, requestBody) {
+        requestBody.id = stripPathEnd(uri);
+        return requestBody;
+      });
+    it('should update a project', function(done){
+      var newProjectName = PROJECTNAME + '2';
+      var options = {
+        'id': PROJECTID,
+        'project_name': newProjectName
+      }
+      client.updateProject(options).then(function(reply){
+        reply = JSON.parse(reply);
+        assert.equal(reply["id"], PROJECTID);
+        assert.equal(reply["project_name"], newProjectName);
+        done();
+      }, function (error){
+        done(error);
+      })
+    });
+    scope.get('/projects/') //update
+      .reply(200, function(uri, requestBody) {
+        return [ {
+                  "project_id": PROJECTID,
+                  "project_name": PROJECTNAME
+                } ];
+      });
+    it('should return a list of projects', function(done){
+      client.getProjects().then(function(reply){
+        reply = JSON.parse(reply);
+        assert.equal(reply[0].project_id, PROJECTID);
+        assert.equal(reply[0].project_name, PROJECTNAME);
+        done();
+      }, function (error){
+        done(error);
+      })
+    })
   });
+  //////////////////
+  //Experiment Tests
+  //////////////////
   describe("Experiments", function() {
     scope.post('/projects/' + PROJECTID + "/experiments/") //create
       .reply(201, function(uri, requestBody) {
@@ -246,7 +289,29 @@ describe("Successful API Calls", function() {
           }
         )
     });
+    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE') 
+      .reply(204, function(uri, requestBody) {
+        return requestBody;
+      });
+    it('should delete an experiment', function(done) {
+      var options = {
+        "project_id": PROJECTID,
+        "id": EXPERIMENTID
+      };
+      client.deleteExperiment(options)
+        .then(
+          function(reply) {
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
   });
+  //////////////////
+  //Variation Tests
+  //////////////////
   describe("Variations", function() {
     scope.post('/experiments/' + EXPERIMENTID + '/variations/') //create
       .reply(201, function(uri, requestBody) {
@@ -360,11 +425,34 @@ describe("Successful API Calls", function() {
           }
         )
     });
+    scope.intercept('/variations/' + VARIATIONID, 'DELETE') 
+      .reply(204, function(uri, requestBody) {
+        return;
+      });
+    it('should delete a variation', function(done) {
+      var options = {
+        "id": VARIATIONID
+      };
+      client.deleteVariation(options)
+        .then(
+          function(reply) {
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
   })
 })
 
-
+////////////////////////
+//Unsuccessful API Tests
+////////////////////////
 describe("Unsuccessful API Calls", function() {
+  //////////////////
+  //Project Tests
+  //////////////////
   describe("Projects", function() {
     scope.post('/projects/') //create
       .reply(400, function(uri, requestBody) {
@@ -414,7 +502,50 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
-  })
+    scope.put('/projects/' + PROJECTID) //update
+      .reply(400, function(uri, requestBody) {
+        requestBody.id = stripPathEnd(uri);
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };      
+      });
+    it('should not update a project', function(done){
+      var newProjectName = PROJECTNAME + '2';
+      var options = {
+        'id': PROJECTID,
+        'project_name': newProjectName
+      }
+      client.updateProject(options).then(function(reply){
+        done(FAILUREMESSAGE);
+      }, function (error){
+        error = JSON.parse(error);
+        assert.equal(error.message, FUNNELENVYERROR);
+        done();
+      })
+    });
+    scope.get('/projects/') //update
+      .reply(400, function(uri, requestBody) {
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      });
+    it('should not return a list of projects', function(done){
+      client.getProjects().then(function(reply){
+        done(FAILUREMESSAGE);
+      }, function (error){
+        error = JSON.parse(error);
+        assert.equal(error.message, FUNNELENVYERROR);
+        done();
+      });
+    })
+  });
+  //////////////////
+  //Experiment Tests
+  //////////////////
   describe("Experiments", function() {
     scope.post('/projects/' + PROJECTID + "/experiments/") //create
       .reply(400, function(uri, requestBody) {
@@ -596,7 +727,34 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
+    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE') 
+      .reply(400, function(uri, requestBody) {
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      });
+    it('should not delete an experiment', function(done) {
+      var options = {
+        "id": EXPERIMENTID
+      };
+      client.deleteExperiment(options)
+        .then(
+          function(reply) {
+            done(error);
+          },
+          function(error) {
+            error = JSON.parse(error);
+            assert.equal(error.message, FUNNELENVYERROR);
+            done();
+          }
+        )
+    });
   })
+  //////////////////
+  //Variation Tests
+  //////////////////
   describe("Variations", function() {
     scope.post('/experiments/' + EXPERIMENTID + '/variations/') //create
       .reply(400, function(uri, requestBody) {
@@ -711,6 +869,30 @@ describe("Unsuccessful API Calls", function() {
         .then(
           function(variation) {
             done(FAILUREMESSAGE);
+          },
+          function(error) {
+            error = JSON.parse(error);
+            assert.equal(error.message, FUNNELENVYERROR);
+            done();
+          }
+        )
+    });
+    scope.intercept('/variations/' + VARIATIONID, 'DELETE') 
+      .reply(400, function(uri, requestBody) {
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      });
+    it('should not delete a variation', function(done) {
+      var options = {
+        "id": VARIATIONID
+      };
+      client.deleteVariation(options)
+        .then(
+          function(reply) {
+            done(error);
           },
           function(error) {
             error = JSON.parse(error);
