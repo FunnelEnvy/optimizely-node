@@ -16,6 +16,9 @@
     "name": "John Henry",
     "email": "john@iamjohnhenry.com"
   },
+  "contributers": [
+    "Nathan Heaps <nsheaps@gmail.com> (http://www.github.com/nsheaps)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
