@@ -16,6 +16,10 @@
     "name": "John Henry",
     "email": "john@iamjohnhenry.com"
   },
+  "contributers": [
+    "Nathan Selvidge <nselvidge@gmail.com> (http://www.nathanselvidge.com)"
+    "Nathan Heaps <nsheaps@gmail.com> (http://www.github.com/nsheaps)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
