@@ -11,7 +11,9 @@ var stripPathEnd = function(path) {
 var PROJECTID = hat();
 var EXPERIMENTID = hat();
 var VARIATIONID = hat();
+var AUDIENCEID = hat();
 var PROJECTNAME = "PROJECTNAME";
+var AUDIENCENAME = "AUDIENCENAME";
 var EXPERIMENTDESCRIPTION = "DESCRIPTION OF EXPERIMENT";
 var VARIATIONDESCRIPTION = "DESCRIPTION OF VARIATION";
 var baseUrl = 'https://www.optimizelyapis.com/experiment/v1';
@@ -308,6 +310,42 @@ describe("Successful API Calls", function() {
           }
         )
     });
+    scope.intercept('/experiments/' + EXPERIMENTID + '/results', 'GET') 
+      .reply(200, function(uri, requestBody) {
+        return requestBody;
+      });
+    it('should get results', function(done) {
+      var options = {
+        "id": EXPERIMENTID
+      };
+      client.getResults(options)
+        .then(
+          function(reply) {
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    scope.intercept('/experiments/' + EXPERIMENTID + '/stats', 'GET') 
+      .reply(200, function(uri, requestBody) {
+        return requestBody;
+      });
+    it('should get stats', function(done) {
+      var options = {
+        "id": EXPERIMENTID
+      };
+      client.getStats(options)
+        .then(
+          function(reply) {
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
   });
   //////////////////
   //Variation Tests
@@ -442,6 +480,106 @@ describe("Successful API Calls", function() {
             done(error);
           }
         )
+    });
+  })
+  //////////////////
+  //Audience Tests
+  //////////////////
+  describe("Audiences", function() {
+    /**
+     * Set up the Audience Test Paths here
+     */
+    before(function(){
+      scope.get('/audiences/' + AUDIENCEID) //get
+        .reply(200, function(uri, requestBody) {
+          return stripPathEnd(uri);
+        });
+      scope.post('/projects/' + PROJECTID + '/audiences/') //create
+        .reply(201, function(uri, requestBody) {
+          requestBody = JSON.parse(requestBody);
+          requestBody.id = AUDIENCEID;
+          return requestBody;
+        });
+      scope.put('/audiences/' + AUDIENCEID) //update
+        .reply(202, function(uri, requestBody) {
+          requestBody = JSON.parse(requestBody);
+          requestBody.id = AUDIENCEID;
+          return requestBody;
+        });
+      scope.get('/projects/' + PROJECTID + '/audiences/') //get 
+        .reply(200, function(uri, requestBody) {
+          return [ {
+                    "id": AUDIENCEID,
+                    "name": AUDIENCENAME
+                  } ];
+        });
+    });
+    /**
+     * Describe the Audience functions here
+     */
+    it('should create an audience', function(done) {
+      var options = {
+        "id": PROJECTID,
+        "name": AUDIENCENAME
+      }
+      client.createAudience(options)
+        .then(
+          function(audience) {
+            audience = JSON.parse(audience);
+            assert.equal(audience.name,
+              AUDIENCENAME);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    it('should get an audience', function(done) {
+      var options = {
+        "id": AUDIENCEID
+      }
+      client.getAudience(options)
+        .then(
+          function(id) {
+            assert.equal(id, AUDIENCEID);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    it('should update a audience', function(done) {
+      var options = {
+        "id": AUDIENCEID,
+        "name": "New " + AUDIENCENAME
+      }
+      client.updateAudience(options)
+        .then(
+          function(audience) {
+            audience = JSON.parse(audience);
+            assert.equal(audience.name,
+              "New " + AUDIENCENAME);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    it('should return a list of audiences', function(done){
+      var options = {
+        "id": PROJECTID
+      }
+      client.getAudiences(options).then(function(reply){
+        reply = JSON.parse(reply);
+        assert.equal(reply[0].id, AUDIENCEID);
+        assert.equal(reply[0].name, AUDIENCENAME);
+        done();
+      }, function (error){
+        done(error);
+      })
     });
   })
 })
@@ -751,6 +889,14 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
+    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE') 
+      .reply(400, function(uri, requestBody) {
+        return {
+          status: 400,
+          message: FUNNELENVYERROR,
+          uuid: hat()
+        };
+      });
   })
   //////////////////
   //Variation Tests
