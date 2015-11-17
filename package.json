@@ -1,6 +1,6 @@
 {
   "name": "optimizely-node-client",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Optimizely Client for Node",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,8 @@
   },
   "contributors": [
     "Nathan Selvidge <nselvidge@gmail.com> (http://www.nathanselvidge.com)",
-    "Nathan Heaps <nsheaps@gmail.com> (http://www.github.com/nsheaps)"
+    "Nathan Heaps <nsheaps@gmail.com> (http://www.github.com/nsheaps)",
+    "James Marchant <jwmarchant@gmail.com> (https://github.com/JWMarchant)"
   ],
   "license": "MIT",
   "repository": {

@@ -12,8 +12,10 @@ var PROJECTID = hat();
 var EXPERIMENTID = hat();
 var VARIATIONID = hat();
 var AUDIENCEID = hat();
+var DIMENSIONID = hat();
 var PROJECTNAME = "PROJECTNAME";
 var AUDIENCENAME = "AUDIENCENAME";
+var DIMENSIONNAME = "DIMENSIONNAME";
 var EXPERIMENTDESCRIPTION = "DESCRIPTION OF EXPERIMENT";
 var VARIATIONDESCRIPTION = "DESCRIPTION OF VARIATION";
 var baseUrl = 'https://www.optimizelyapis.com/experiment/v1';
@@ -576,6 +578,106 @@ describe("Successful API Calls", function() {
         reply = JSON.parse(reply);
         assert.equal(reply[0].id, AUDIENCEID);
         assert.equal(reply[0].name, AUDIENCENAME);
+        done();
+      }, function (error){
+        done(error);
+      })
+    });
+  })
+  //////////////////
+  //Dimension Tests
+  //////////////////
+  describe("Dimensions", function() {
+    /**
+     * Set up the Audience Test Paths here
+     */
+    before(function(){
+      scope.get('/dimensions/' + DIMENSIONID) //get
+        .reply(200, function(uri, requestBody) {
+          return stripPathEnd(uri);
+        });
+      scope.post('/projects/' + PROJECTID + '/dimensions/') //create
+        .reply(201, function(uri, requestBody) {
+          requestBody = JSON.parse(requestBody);
+          requestBody.id = DIMENSIONID;
+          return requestBody;
+        });
+      scope.put('/dimensions/' + DIMENSIONID) //update
+        .reply(202, function(uri, requestBody) {
+          requestBody = JSON.parse(requestBody);
+          requestBody.id = DIMENSIONID;
+          return requestBody;
+        });
+      scope.get('/projects/' + PROJECTID + '/dimensions/') //get 
+        .reply(200, function(uri, requestBody) {
+          return [ {
+                    "id": DIMENSIONID,
+                    "name": DIMENSIONNAME
+                  } ];
+        });
+    });
+    /**
+     * Describe the Dimension functions here
+     */
+    it('should create a dimension', function(done) {
+      var options = {
+        "id": PROJECTID,
+        "name": DIMENSIONNAME
+      }
+      client.createDimension(options)
+        .then(
+          function(dimension) {
+            dimension = JSON.parse(dimension);
+            assert.equal(dimension.name,
+              DIMENSIONNAME);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    it('should get a dimension', function(done) {
+      var options = {
+        "id": DIMENSIONID
+      }
+      client.getDimension(options)
+        .then(
+          function(id) {
+            assert.equal(id, DIMENSIONID);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    it('should update a dimension', function(done) {
+      var options = {
+        "id": DIMENSIONID,
+        "name": "New " + DIMENSIONNAME
+      }
+      client.updateDimension(options)
+        .then(
+          function(dimension) {
+            dimension = JSON.parse(dimension);
+            assert.equal(dimension.name,
+              "New " + DIMENSIONNAME);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
+    it('should return a list of dimensions', function(done){
+      var options = {
+        "id": PROJECTID
+      }
+      client.getDimensions(options).then(function(reply){
+        reply = JSON.parse(reply);
+        assert.equal(reply[0].id, DIMENSIONID);
+        assert.equal(reply[0].name, DIMENSIONNAME);
         done();
       }, function (error){
         done(error);
