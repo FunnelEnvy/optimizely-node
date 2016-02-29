@@ -13,9 +13,11 @@ var EXPERIMENTID = hat();
 var VARIATIONID = hat();
 var AUDIENCEID = hat();
 var DIMENSIONID = hat();
+var GOALSID = hat();
 var PROJECTNAME = "PROJECTNAME";
 var AUDIENCENAME = "AUDIENCENAME";
 var DIMENSIONNAME = "DIMENSIONNAME";
+var GOALSNAME = "GOALSNAME";
 var EXPERIMENTDESCRIPTION = "DESCRIPTION OF EXPERIMENT";
 var VARIATIONDESCRIPTION = "DESCRIPTION OF VARIATION";
 var baseUrl = 'https://www.optimizelyapis.com/experiment/v1';
@@ -684,7 +686,45 @@ describe("Successful API Calls", function() {
       })
     });
   })
+
+  //////////////////
+  //Goals Tests
+  //////////////////
+  describe("Goals", function() {
+    /**
+     * Set up the Goals Test Paths here
+     */
+    before(function(){
+      scope.get('/projects/' + PROJECTID + '/goals/') //get 
+        .reply(200, function(uri, requestBody) {
+          return [ {
+                    "id": GOALSID,
+                    "name": GOALSNAME
+                  } ];
+        });
+
+    });
+    /**
+     * Describe the Goals functions here
+     */
+
+    it('should return a list of goals', function(done){
+      var options = {
+        "id": PROJECTID
+      }
+      client.getGoals(options).then(function(reply){
+        reply = JSON.parse(reply);
+        assert.equal(reply[0].id, GOALSID);
+        assert.equal(reply[0].name, GOALSNAME);
+        done();
+      }, function (error){
+        done(error);
+      })
+    });
+  })
+
 })
+
 
 ////////////////////////
 //Unsuccessful API Tests
