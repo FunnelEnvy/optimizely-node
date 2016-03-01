@@ -16,6 +16,13 @@ var API_TOKEN = "*";//Get token from www.optimizely.com/tokens
 var oc = new OptimizelyClient(API_TOKEN);
 ```
 
+```js
+// OAuth2 token
+var OptimizelyClient = require('optimizely-node-client');
+var API_TOKEN = "*";//Get token from www.optimizely.com/tokens
+var oc = new OptimizelyClient(API_TOKEN, null, true);
+```
+
 ### Example
 ```js
 oc.createProject({/*...project properties*/})
