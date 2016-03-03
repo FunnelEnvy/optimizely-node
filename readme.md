@@ -20,7 +20,7 @@ var oc = new OptimizelyClient(API_TOKEN);
 // OAuth2 token
 var OptimizelyClient = require('optimizely-node-client');
 var API_TOKEN = "*";//Get token from www.optimizely.com/tokens
-var oc = new OptimizelyClient(API_TOKEN, null, true);
+var oc = new OptimizelyClient(API_TOKEN, { OAuth2: true });
 ```
 
 ### Example
