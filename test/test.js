@@ -295,7 +295,7 @@ describe("Successful API Calls", function() {
           }
         )
     });
-    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE') 
+    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE')
       .reply(204, function(uri, requestBody) {
         return requestBody;
       });
@@ -314,7 +314,7 @@ describe("Successful API Calls", function() {
           }
         )
     });
-    scope.intercept('/experiments/' + EXPERIMENTID + '/results', 'GET') 
+    scope.intercept('/experiments/' + EXPERIMENTID + '/results', 'GET')
       .reply(200, function(uri, requestBody) {
         return requestBody;
       });
@@ -332,7 +332,7 @@ describe("Successful API Calls", function() {
           }
         )
     });
-    scope.intercept('/experiments/' + EXPERIMENTID + '/stats', 'GET') 
+    scope.intercept('/experiments/' + EXPERIMENTID + '/stats', 'GET')
       .reply(200, function(uri, requestBody) {
         return requestBody;
       });
@@ -355,6 +355,37 @@ describe("Successful API Calls", function() {
   //Variation Tests
   //////////////////
   describe("Variations", function() {
+    scope.get('/experiments/' + EXPERIMENTID + '/variations') //get multiple
+      .reply(201, function(uri) {
+        return [{
+          "is_paused": false,
+          "description": "Original",
+          "weight": null,
+          "created": "2014-04-17T00:47:58.390560Z",
+          "section_id": null,
+          "js_component": "",
+          "experiment_id": 854484703,
+          "project_id": 859720118,
+          "id": 854613530
+        }];
+      });
+    it('should list variations an experiment', function(done) {
+      var options = {
+        "experiment_id": EXPERIMENTID
+      }
+      client.getVariations(options)
+        .then(
+          function(variations) {
+            variations = JSON.parse(variations);
+            assert.equal(variations.length, 1);
+            assert.equal(variations[0].id, 854613530);
+            done();
+          },
+          function(error) {
+            done(error);
+          }
+        )
+    });
     scope.post('/experiments/' + EXPERIMENTID + '/variations/') //create
       .reply(201, function(uri, requestBody) {
         requestBody = JSON.parse(requestBody);
@@ -467,7 +498,7 @@ describe("Successful API Calls", function() {
           }
         )
     });
-    scope.intercept('/variations/' + VARIATIONID, 'DELETE') 
+    scope.intercept('/variations/' + VARIATIONID, 'DELETE')
       .reply(204, function(uri, requestBody) {
         return;
       });
@@ -510,7 +541,7 @@ describe("Successful API Calls", function() {
           requestBody.id = AUDIENCEID;
           return requestBody;
         });
-      scope.get('/projects/' + PROJECTID + '/audiences/') //get 
+      scope.get('/projects/' + PROJECTID + '/audiences/') //get
         .reply(200, function(uri, requestBody) {
           return [ {
                     "id": AUDIENCEID,
@@ -610,7 +641,7 @@ describe("Successful API Calls", function() {
           requestBody.id = DIMENSIONID;
           return requestBody;
         });
-      scope.get('/projects/' + PROJECTID + '/dimensions/') //get 
+      scope.get('/projects/' + PROJECTID + '/dimensions/') //get
         .reply(200, function(uri, requestBody) {
           return [ {
                     "id": DIMENSIONID,
@@ -695,7 +726,7 @@ describe("Successful API Calls", function() {
      * Set up the Goals Test Paths here
      */
     before(function(){
-      scope.get('/projects/' + PROJECTID + '/goals/') //get 
+      scope.get('/projects/' + PROJECTID + '/goals/') //get
         .reply(200, function(uri, requestBody) {
           return [ {
                     "id": GOALSID,
@@ -789,7 +820,7 @@ describe("Unsuccessful API Calls", function() {
           status: 400,
           message: FUNNELENVYERROR,
           uuid: hat()
-        };      
+        };
       });
     it('should not update a project', function(done){
       var newProjectName = PROJECTNAME + '2';
@@ -1007,7 +1038,7 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
-    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE') 
+    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE')
       .reply(400, function(uri, requestBody) {
         return {
           status: 400,
@@ -1031,7 +1062,7 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
-    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE') 
+    scope.intercept('/experiments/' + EXPERIMENTID, 'DELETE')
       .reply(400, function(uri, requestBody) {
         return {
           status: 400,
@@ -1165,7 +1196,7 @@ describe("Unsuccessful API Calls", function() {
           }
         )
     });
-    scope.intercept('/variations/' + VARIATIONID, 'DELETE') 
+    scope.intercept('/variations/' + VARIATIONID, 'DELETE')
       .reply(400, function(uri, requestBody) {
         return {
           status: 400,
