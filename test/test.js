@@ -428,7 +428,8 @@ describe("Successful API Calls", function() {
     it('should update a variation', function(done) {
       var options = {
         "id": VARIATIONID,
-        "description": "New " + "Variation Description"
+        "description": "New " + "Variation Description",
+        "weight": "3000"
       }
       client.updateVariation(options)
         .then(
@@ -436,6 +437,7 @@ describe("Successful API Calls", function() {
             variation = JSON.parse(variation);
             assert.equal(variation.description,
               "New " + "Variation Description");
+            assert.equal(variation.weight, "3000");
             done();
           },
           function(error) {
